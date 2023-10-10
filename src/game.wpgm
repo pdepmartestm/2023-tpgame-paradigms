@@ -1,0 +1,8 @@
+import wollok.game.*
+import game.*
+
+program juego {
+	game.title("pelota")
+	pantalla.iniciar()
+	game.start()
+}
