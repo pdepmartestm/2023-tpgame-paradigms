@@ -1,8 +1,11 @@
 import wollok.game.*
 
-object jugador1{
-	const marcador = new Marcador()
-	var property position = game.center().down(5)
+class Jugador
+{
+	const property marcador
+	var property position
+	const property teclaDerecha
+	const property teclaIzquierda
 	method image() = "player.png"
 	method derecha() {
 		if(position.x() < game.width()-1){
@@ -21,30 +24,9 @@ object jugador1{
 	}
 }
 
-object jugador2{
-	const marcador = new Marcador()
-	var property  position = game.center().up(5)
-	method image() = "player.png"
-	
-	method derecha() {
-		if(position.x() < game.width()-1){
-		position = position.right(1)
-		}
-	}
-	method izquierda() {
-		if(position.x() > 0){
-		position = position.left(1)
-		}
-	}
-	method gol(){
-		marcador.puntos(marcador.puntos() +1)
-		pelota.initialize()
-	}
-}
-
 class Marcador{
 	var property puntos = 0
-	//var position
+	const property position
 	method text() = puntos.toString()
 }
 
@@ -57,11 +39,11 @@ object pelota{
 		if(position.x() == 0 || position.x() == game.width()-1){
 			self.cambiarDireccionH()
 		}
-		if(position.y() < jugador1.position().y()){
-		jugador2.gol()
+		if(position.y() < 0){
+		pantalla.gol(1)
 		}
-		if(position.y() > jugador2.position().y()){
-		jugador1.gol()
+		if(position.y() > game.height()){
+		pantalla.gol(2)
 		}
 	}
 	method initialize(){
@@ -75,9 +57,7 @@ object pelota{
 	method desplazamiento() {
 		
 		self.initialize()
-		game.onTick(1000,"moverPelotita",{self.moverse()})
-		game.onCollideDo(jugador1,{p=>self.cambiarDireccionV()})
-		game.onCollideDo(jugador2,{p=>self.cambiarDireccionV()})
+		game.onTick(500,"moverPelotita",{self.moverse()})
 		
 	}
 
@@ -93,11 +73,14 @@ object pelota{
 
 
 object pantalla {
+	const jugador1 = new Jugador(teclaDerecha = keyboard.d(),teclaIzquierda = keyboard.a(), position = game.center().down(1), marcador = new Marcador(position = game.center().up(5).left(2)))
+	const jugador2 = new Jugador(teclaDerecha = keyboard.right(),teclaIzquierda = keyboard.left(), position = game.center().up(9),marcador = new Marcador(position = game.center().up(3).left(2)))
 	
 	method iniciar(){
 		self.configuracionBasica()
 		self.agregarVisuales()
 		self.programarTeclas()
+		self.collides()
 		pelota.desplazamiento()
 		
 	}
@@ -106,7 +89,7 @@ object pantalla {
 		game.width(15)
 		game.height(12)
 		game.title("Juego")
-//		game.cellSize(40)
+//		game.cellSize(10)
 //		game.boardGround("imagenDeFondo.jpg")
 	}
 	
@@ -114,14 +97,28 @@ object pantalla {
 		game.addVisual(jugador1)
 		game.addVisual(jugador2)
 		game.addVisual(pelota)
+		game.addVisual(jugador1.marcador())
+		game.addVisual(jugador2.marcador())
 		}
  
 	method programarTeclas() {
-		keyboard.right().onPressDo{jugador1.derecha()} 
-		keyboard.left().onPressDo{jugador1.izquierda()} 
-		keyboard.d().onPressDo{jugador2.derecha()} 
-		keyboard.a().onPressDo{jugador2.izquierda()}
+		jugador1.teclaDerecha().onPressDo{jugador1.derecha()} 
+		jugador1.teclaIzquierda().onPressDo{jugador1.izquierda()} 
+		jugador2.teclaDerecha().onPressDo{jugador2.derecha()} 
+		jugador2.teclaIzquierda().onPressDo{jugador2.izquierda()}
 		
 	}
-	
+	method gol(numero)
+	{
+		if(numero == 1)
+		{
+			jugador1.gol()
+		}
+		else{jugador2.gol()}
+	}
+	method collides()
+	{
+		game.onCollideDo(jugador1 ,{p=>pelota.cambiarDireccionV()})
+		game.onCollideDo(jugador2 ,{p=>pelota.cambiarDireccionV()})
+	}
 }
