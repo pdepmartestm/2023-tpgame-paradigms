@@ -2,7 +2,6 @@ import wollok.game.*
 
 class ParteJugador{
 	var property position
-//	method image() = "transparente.jpg"
 }
 
 class Jugador
@@ -14,7 +13,7 @@ class Jugador
 	const property teclaIzquierda
 	method image() = "player.png"
 	method derecha() {
-		if(position.x() < game.width()-1){
+		if(position.x() < game.width()-3){
 		position = position.right(1)
 		partes.forEach({x=> x.position(x.position().right(1))})
 		}
@@ -68,8 +67,7 @@ object pelota{
 	
 	method desplazamiento() {
 		
-		self.initialize()
-		
+		self.initialize()		
 		game.onTick(5000/velocidad,"moverPelotita",{self.moverse()})
 		
 	}
@@ -91,11 +89,7 @@ object pelota{
 object pantalla {
 	const jugador1 = new Jugador(teclaDerecha = keyboard.d(),teclaIzquierda = keyboard.a(), position = game.center().down(1), marcador = new Marcador(position = game.center().up(5).left(2)))
 	const jugador2 = new Jugador(teclaDerecha = keyboard.right(),teclaIzquierda = keyboard.left(), position = game.center().up(9),marcador = new Marcador(position = game.center().up(3).left(2)))
-//	const parte11 = new ParteJugador(parteIzquierda = jugador1)
-//	const parte12 = new ParteJugador(parteIzquierda = parte11)
-//	const parte13 = new ParteJugador(parteIzquierda = parte12)
-//	const parte21 = new ParteJugador(parteIzquierda = jugador2)
-//	const parte23 = new ParteJugador(parteIzquierda = parte22)
+
 	method iniciar(){
 		self.configuracionBasica()
 		self.agregarVisuales()
@@ -109,8 +103,6 @@ object pantalla {
 		game.width(15)
 		game.height(12)
 		game.title("Juego")
-//		game.cellSize(10)
-//		game.boardGround("imagenDeFondo.jpg")
 	}
 	
 	method agregarVisuales() {
