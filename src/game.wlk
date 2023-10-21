@@ -11,7 +11,6 @@ class Jugador
 	var property position
 	const property teclaDerecha
 	const property teclaIzquierda
-	const pelota
 	const number = new Range(start = 1, end = 2).anyOne()
 	
 	method image() = "player.png"
@@ -27,22 +26,16 @@ class Jugador
 		partes.forEach({x=> x.position(x.position().left(1))})
 		}
 	}
-	method gol()
+	method gol(numero)
 	{
 		marcador.puntos(marcador.puntos() +1)
-		pelota.desplazamiento(number)
+		pantalla.resetearPelota(numero)
 		if(marcador.puntos() >= 5 && pantalla.pelotas().size() < 2){
-			self.siguienteNivel()
+			pantalla.siguienteNivel()
 		}
 	}
-	
-	method siguienteNivel(){
-		const nuevaPelota =  new Pelota()
-		pantalla.pelotas([pelota, nuevaPelota])
-		game.addVisual(nuevaPelota)
-		nuevaPelota.desplazamiento(number)
+	method cambiarDireccionV(parametro){}
 		
-	}
 }
 
 class Marcador{
@@ -52,22 +45,24 @@ class Marcador{
 }
 
 class Pelota{
-	var property position
-	var movHorizontal
-	var movVertical
+	var property position = game.center()
+	var movHorizontal = 0
+	var movVertical = 0
 	var velocidad = 10
+	var nombreOnTick
+	var numero
 	method moverse(number) {
 		position = position.up(movVertical).right(movHorizontal)
 		if(position.x() == 0 || position.x() == game.width()-1){
 			self.cambiarDireccionH(number)
 		}
 		if(position.y() < 0){
-		pantalla.gol(1)
-		game.removeTickEvent("moverPelotita")
+		pantalla.gol(1,numero)
+		game.removeTickEvent(nombreOnTick)
 		}
 		if(position.y() > game.height()){
-		pantalla.gol(2)
-		game.removeTickEvent("moverPelotita")
+		pantalla.gol(2,numero)
+		game.removeTickEvent(nombreOnTick)
 		}
 	}
 	method initialize(){
@@ -82,7 +77,7 @@ class Pelota{
 	method desplazamiento(number) {
 		
 		self.initialize()		
-		game.onTick(5000/velocidad,"moverPelotita",{self.moverse(number)})
+		game.onTick(5000/velocidad,nombreOnTick,{self.moverse(number)})
 		
 	}
 
@@ -92,18 +87,18 @@ class Pelota{
 	}
 	method cambiarDireccionV(number){
 		movVertical *= -1
-		game.removeTickEvent("moverPelotita")
+		game.removeTickEvent(nombreOnTick)
 		velocidad+= 3
-		game.onTick(5000/velocidad,"moverPelotita",{self.moverse(number)})
+		game.onTick(5000/velocidad,nombreOnTick,{self.moverse(number)})
 	}
 }
 
 
 
 object pantalla {
-	var property pelotas = [new Pelota()]
-	const jugador1 = new Jugador(pelota = pelotas.first(),teclaDerecha = keyboard.d(),teclaIzquierda = keyboard.a(), position = game.center().down(1), marcador = new Marcador(position = game.center().up(5).left(2)))
-	const jugador2 = new Jugador(pelota = pelotas.first(), teclaDerecha = keyboard.right(),teclaIzquierda = keyboard.left(), position = game.center().up(9),marcador = new Marcador(position = game.center().up(3).left(2)))
+	var property pelotas = [new Pelota(nombreOnTick = "moverPelotita1",numero = 0)]
+	const jugador1 = new Jugador(teclaDerecha = keyboard.d(),teclaIzquierda = keyboard.a(), position = game.center().down(1), marcador = new Marcador(position = game.center().up(5).left(2)))
+	const jugador2 = new Jugador( teclaDerecha = keyboard.right(),teclaIzquierda = keyboard.left(), position = game.center().up(9),marcador = new Marcador(position = game.center().up(3).left(2)))
 	const number = new Range(start = 1, end = 2).anyOne()
 	
 	method iniciar(){
@@ -111,11 +106,9 @@ object pantalla {
 		self.agregarVisuales()
 		self.programarTeclas()
 		self.collides()
-		pelotas.forEach{pelota=>
-		pelota.desplazamiento(number)
+		pelotas.first().desplazamiento(number)
 		}
 		
-	}
 	
 	method configuracionBasica() {
 		game.width(15)
@@ -142,20 +135,28 @@ object pantalla {
 		jugador2.teclaIzquierda().onPressDo{jugador2.izquierda()}
 		
 	}
-	method gol(numero)
+	method gol(jugador,pelota)
 	{
-		if(numero == 1)
+		if(jugador == 1)
 		{
-			jugador1.gol()
+			jugador1.gol(pelota)
 		}
-		else{jugador2.gol()}
+		else{jugador2.gol(pelota)}
 	}
 	method collides()
 	{		
-		pelotas.forEach{pe=>
-			jugador1.partes().forEach({x=> game.onCollideDo(x,{p=>pe.cambiarDireccionV(number)})})
-			jugador2.partes().forEach({x=> game.onCollideDo(x,{p=>pe.cambiarDireccionV(number)})})
-		}
-
+			jugador1.partes().forEach({x=> game.onCollideDo(x,{p=>p.cambiarDireccionV(number)})})
+			jugador2.partes().forEach({x=> game.onCollideDo(x,{p=>p.cambiarDireccionV(number)})})
+	}
+	method resetearPelota(numero)
+	{
+		pelotas.get(numero).desplazamiento(numero)
+	}
+	
+	method siguienteNivel()
+	{
+		pelotas.add(new Pelota(nombreOnTick = "moverPelotita2",numero = 1))
+		pelotas.get(1).desplazamiento(number)
+		game.addVisual(pelotas.get(1))
 	}
 }
