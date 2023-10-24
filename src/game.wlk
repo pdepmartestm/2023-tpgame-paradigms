@@ -31,6 +31,9 @@ class Jugador
 		if(marcador.puntos() >= 5 && pantalla.pelotas().size() < 2){
 			pantalla.siguienteNivel()
 		}
+		if(marcador.puntos() > 9){
+			pantalla.ganar(self)
+		}
 	}
 	method cambiarDireccionV(){}
 		
@@ -42,12 +45,13 @@ class Marcador{
 	method text() = puntos.toString()
 }
 
+
 class Pelota{
 	var property position = game.center()
 	var movHorizontal = 0
 	var movVertical = 0
 	var velocidad = 10
-	var nombreOnTick
+	var property nombreOnTick
 	const angulo = new Range(start = 1, end = 2).anyOne()
 	method moverse() {
 		position = position.up(movVertical).right(movHorizontal)
@@ -57,13 +61,15 @@ class Pelota{
 		if(position.y() < 0){
 		pantalla.gol(1)
 		game.removeTickEvent(nombreOnTick)
-		self.desplazamiento()
-		
+		game.removeVisual(self)
+		game.addVisual(new PelotaDorada(pelotareemplazada = self, nombreOnTick = nombreOnTick))
 		}
 		if(position.y() > game.height()){
 		pantalla.gol(2)
 		game.removeTickEvent(nombreOnTick)
-		self.desplazamiento()
+		game.removeVisual(self)
+		game.addVisual(new PelotaDorada(pelotareemplazada = self, nombreOnTick = nombreOnTick))
+
 		}
 	}
 	method image() = "pelota.png"
@@ -91,6 +97,46 @@ class Pelota{
 	}
 }
 
+class PelotaDorada inherits Pelota{
+	var pelotareemplazada
+	
+	method initialize()
+	{
+		self.desplazamiento()
+	}
+method  moverse() {
+		position = position.up(movVertical).right(movHorizontal)
+		if(position.x() == 0 || position.x() == game.width()-1){
+			self.cambiarDireccionH()
+		}
+		if(position.y() < 0){
+			pantalla.gol(1)
+			pantalla.gol(1)
+			game.removeTickEvent(nombreOnTick)
+			game.removeVisual(self)
+			game.addVisual(pelotareemplazada)
+			pelotareemplazada.desplazamiento()
+		}
+		if(position.y() > game.height()){
+			pantalla.gol(2)
+			pantalla.gol(2)
+			game.removeTickEvent(nombreOnTick)
+			game.removeVisual(self)
+			game.addVisual(pelotareemplazada)
+			pelotareemplazada.desplazamiento()
+				
+		}
+	}
+	
+	method  image() = "pelotadorada.png"
+	
+}
+
+object ganador{
+	var property imagen
+	method position() = game.center().left(4)
+	method image() = imagen	
+}
 
 object pantalla {
 	var property pelotas = [new Pelota(nombreOnTick = "moverPelotita1")]
@@ -152,5 +198,18 @@ object pantalla {
 		pelotas.add(new Pelota(nombreOnTick = "moverPelotita2"))
 		pelotas.get(1).desplazamiento()
 		game.addVisual(pelotas.get(1))
+	}
+	method ganar(jugador)
+	{
+		if(jugador == jugador1)
+		{
+			ganador.imagen("winner-1.jpg")
+		}
+		if(jugador == jugador2)
+		{
+			ganador.imagen("winner-2.jpg")
+		}
+		game.addVisual(ganador)
+		game.schedule(2000,{game.stop()})
 	}
 }
