@@ -31,7 +31,7 @@ class Jugador
 		if(marcador.puntos() >= 5 && pantalla.pelotas().size() < 2){
 			pantalla.siguienteNivel()
 		}
-		if(marcador.puntos() > 9){
+		if(marcador.puntos() > 6){
 			pantalla.ganar(self)
 		}
 	}
@@ -201,6 +201,9 @@ object pantalla {
 	}
 	method ganar(jugador)
 	{
+		game.schedule(50,{game.removeTickEvent("moverPelotita2")})
+		game.schedule(50,{game.removeTickEvent("moverPelotita1")})
+		pelotas.forEach({p => game.removeVisual(p)})
 		if(jugador == jugador1)
 		{
 			ganador.imagen("winner-1.jpg")
@@ -210,6 +213,6 @@ object pantalla {
 			ganador.imagen("winner-2.jpg")
 		}
 		game.addVisual(ganador)
-		game.schedule(2000,{game.stop()})
+		game.schedule(4000,{game.stop()})
 	}
 }
