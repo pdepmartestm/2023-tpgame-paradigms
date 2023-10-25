@@ -31,11 +31,11 @@ class Jugador
 		if(marcador.puntos() >= 5 && pantalla.pelotas().size() < 2){
 			pantalla.siguienteNivel()
 		}
-		if(marcador.puntos() > 6){
+		if(marcador.puntos() > 9){
 			pantalla.ganar(self)
 		}
 	}
-	method cambiarDireccionV(){}
+	method cambiarDireccionV(parametro){}
 		
 }
 
@@ -89,8 +89,8 @@ class Pelota{
 	method cambiarDireccionH(){
 		movHorizontal *= -1
 	}
-	method cambiarDireccionV(){
-		movVertical *= -1
+	method cambiarDireccionV(numero){
+		movVertical = numero
 		game.removeTickEvent(nombreOnTick)
 		velocidad+= 3
 		game.onTick(5000/velocidad,nombreOnTick,{self.moverse()})
@@ -128,7 +128,7 @@ method  moverse() {
 		}
 	}
 	
-	method  image() = "pelotadorada.png"
+	method  image() = "pelotaDorada.png"
 	
 }
 
@@ -189,8 +189,8 @@ object pantalla {
 	}
 	method collides()
 	{		
-			jugador1.partes().forEach({x=> game.onCollideDo(x,{p=>p.cambiarDireccionV()})})
-			jugador2.partes().forEach({x=> game.onCollideDo(x,{p=>p.cambiarDireccionV()})})
+			jugador1.partes().forEach({x=> game.onCollideDo(x,{p=>p.cambiarDireccionV(1)})})
+			jugador2.partes().forEach({x=> game.onCollideDo(x,{p=>p.cambiarDireccionV(-1)})})
 	}
 	
 	method siguienteNivel()
@@ -203,7 +203,7 @@ object pantalla {
 	{
 		game.schedule(50,{game.removeTickEvent("moverPelotita2")})
 		game.schedule(50,{game.removeTickEvent("moverPelotita1")})
-		pelotas.forEach({p => game.removeVisual(p)})
+//		game.schedule(50,pelotas.forEach({p => game.removeVisual(p)}))
 		if(jugador == jugador1)
 		{
 			ganador.imagen("winner-1.jpg")
