@@ -59,22 +59,29 @@ class Pelota{
 			self.cambiarDireccionH()
 		}
 		if(position.y() < 0){
-		pantalla.gol(1)
-		game.removeTickEvent(nombreOnTick)
-		game.removeVisual(self)
-		game.addVisual(new PelotaDorada(pelotareemplazada = self, nombreOnTick = nombreOnTick))
+			pantalla.gol(1)
+			self.gol()
 		}
 		if(position.y() > game.height()){
-		pantalla.gol(2)
-		game.removeTickEvent(nombreOnTick)
-		game.removeVisual(self)
-		game.addVisual(new PelotaDorada(pelotareemplazada = self, nombreOnTick = nombreOnTick))
-
+			pantalla.gol(2)
+			self.gol()
 		}
 	}
 	method image() = "pelota.png"
 	
-	
+	method gol()
+	{
+		game.removeTickEvent(nombreOnTick)
+		if(0.randomUpTo(1).between(0,0.25))
+		{
+			game.removeVisual(self)
+			game.addVisual(new PelotaDorada(pelotareemplazada = self, nombreOnTick = nombreOnTick))
+		}
+		else
+		{
+			self.desplazamiento()
+		}
+	}
 	method desplazamiento() {
 		
 		position = game.center()
@@ -112,20 +119,23 @@ method  moverse() {
 		if(position.y() < 0){
 			pantalla.gol(1)
 			pantalla.gol(1)
-			game.removeTickEvent(nombreOnTick)
-			game.removeVisual(self)
-			game.addVisual(pelotareemplazada)
-			pelotareemplazada.desplazamiento()
+			pantalla.gol(1)
+			self.volverANormalidad()
 		}
 		if(position.y() > game.height()){
 			pantalla.gol(2)
 			pantalla.gol(2)
+			pantalla.gol(2)
+			self.volverANormalidad()
+		}
+	}
+	
+	method volverANormalidad()
+	{
 			game.removeTickEvent(nombreOnTick)
 			game.removeVisual(self)
 			game.addVisual(pelotareemplazada)
 			pelotareemplazada.desplazamiento()
-				
-		}
 	}
 	
 	method  image() = "pelotaDorada.png"
@@ -142,7 +152,7 @@ object pantalla {
 	var property pelotas = [new Pelota(nombreOnTick = "moverPelotita1")]
 	const jugador1 = new Jugador(teclaDerecha = keyboard.d(),teclaIzquierda = keyboard.a(), position = game.center().down(1), marcador = new Marcador(position = game.center().up(5).left(2)))
 	const jugador2 = new Jugador( teclaDerecha = keyboard.right(),teclaIzquierda = keyboard.left(), position = game.center().up(9),marcador = new Marcador(position = game.center().up(3).left(2)))
-
+	var alguienGano = false
 	
 	method iniciar(){
 		self.configuracionBasica()
@@ -201,6 +211,9 @@ object pantalla {
 	}
 	method ganar(jugador)
 	{
+		
+		if(alguienGano.negate())
+		{
 		game.schedule(50,{game.removeTickEvent("moverPelotita2")})
 		game.schedule(50,{game.removeTickEvent("moverPelotita1")})
 //		game.schedule(50,pelotas.forEach({p => game.removeVisual(p)}))
@@ -214,5 +227,7 @@ object pantalla {
 		}
 		game.addVisual(ganador)
 		game.schedule(4000,{game.stop()})
+		}
+		alguienGano = true
 	}
 }
