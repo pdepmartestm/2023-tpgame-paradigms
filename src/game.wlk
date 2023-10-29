@@ -27,11 +27,11 @@ class Jugador
 	}
 	method gol()
 	{
-		marcador.puntos(marcador.puntos() +1)
-		if(marcador.puntos() >= 5 && pantalla.pelotas().size() < 2){
+		marcador.aumentar()
+		if(marcador.masQue(5) && pantalla.pelotas().size() < 2){
 			pantalla.siguienteNivel()
 		}
-		if(marcador.puntos() > 9){
+		if(marcador.masQue(10)){
 			pantalla.ganar(self)
 		}
 	}
@@ -43,6 +43,11 @@ class Marcador{
 	var property puntos = 0
 	const property position
 	method text() = puntos.toString()
+	method aumentar()
+	{
+		puntos++
+	}
+	method masQue(puntaje) = puntos >= puntaje
 }
 
 
@@ -52,19 +57,19 @@ class Pelota{
 	var movVertical = 0
 	var velocidad = 10
 	var property nombreOnTick
-	const angulo = new Range(start = 1, end = 2).anyOne()
+	const angulo = new Range(start = 1, end = 2)
 	method moverse() {
 		position = position.up(movVertical).right(movHorizontal)
 		if(position.x() == 0 || position.x() == game.width()-1){
 			self.cambiarDireccionH()
 		}
 		if(position.y() < 0){
-			pantalla.gol(1)
 			self.gol()
+			pantalla.gol(1)
 		}
 		if(position.y() > game.height()){
-			pantalla.gol(2)
 			self.gol()
+			pantalla.gol(2)
 		}
 	}
 	method image() = "pelota.png"
@@ -87,14 +92,14 @@ class Pelota{
 		position = game.center()
 		movVertical = [1,-1].anyOne()
 		movHorizontal = [1,-1].anyOne()
-		velocidad = 10		
+		velocidad = 10
 		game.onTick(5000/velocidad,nombreOnTick,{self.moverse()})
 		
 	}
 
 	
 	method cambiarDireccionH(){
-		movHorizontal *= -1
+			movHorizontal *= -1
 	}
 	method cambiarDireccionV(numero){
 		movVertical = numero
@@ -111,22 +116,22 @@ class PelotaDorada inherits Pelota{
 	{
 		self.desplazamiento()
 	}
-method  moverse() {
+	override method  moverse() {
 		position = position.up(movVertical).right(movHorizontal)
 		if(position.x() == 0 || position.x() == game.width()-1){
 			self.cambiarDireccionH()
 		}
 		if(position.y() < 0){
-			pantalla.gol(1)
-			pantalla.gol(1)
-			pantalla.gol(1)
 			self.volverANormalidad()
+			pantalla.gol(1)
+			pantalla.gol(1)
+			pantalla.gol(1)
 		}
 		if(position.y() > game.height()){
-			pantalla.gol(2)
-			pantalla.gol(2)
-			pantalla.gol(2)
 			self.volverANormalidad()
+			pantalla.gol(2)
+			pantalla.gol(2)
+			pantalla.gol(2)
 		}
 	}
 	
@@ -138,14 +143,13 @@ method  moverse() {
 			pelotareemplazada.desplazamiento()
 	}
 	
-	method  image() = "pelotaDorada.png"
+	override method  image() = "pelotaDorada.png"
 	
 }
 
 object ganador{
-	var property imagen
+	var property image
 	method position() = game.center().left(4)
-	method image() = imagen	
 }
 
 object pantalla {
@@ -214,16 +218,16 @@ object pantalla {
 		
 		if(alguienGano.negate())
 		{
-		game.schedule(50,{game.removeTickEvent("moverPelotita2")})
-		game.schedule(50,{game.removeTickEvent("moverPelotita1")})
-//		game.schedule(50,pelotas.forEach({p => game.removeVisual(p)}))
+		game.allVisuals().forEach{visual => game.removeVisual(visual)}
+		game.removeTickEvent("moverPelotita2")
+		game.removeTickEvent("moverPelotita1")
 		if(jugador == jugador1)
 		{
-			ganador.imagen("winner-1.jpg")
+			ganador.image("winner-1.jpg")
 		}
 		if(jugador == jugador2)
 		{
-			ganador.imagen("winner-2.jpg")
+			ganador.image("winner-2.jpg")
 		}
 		game.addVisual(ganador)
 		game.schedule(4000,{game.stop()})
