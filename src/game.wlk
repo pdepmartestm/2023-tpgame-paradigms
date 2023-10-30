@@ -152,6 +152,17 @@ object ganador{
 	method position() = game.center().left(4)
 }
 
+object enter{
+	method image() = "enter.png"
+	
+	method position() = game.center().left(4)
+	
+	method comenzar(){
+		pantalla.pelotas().first().desplazamiento()
+		game.removeVisual(self)
+	}
+}
+
 object pantalla {
 	var property pelotas = [new Pelota(nombreOnTick = "moverPelotita1")]
 	const jugador1 = new Jugador(teclaDerecha = keyboard.d(),teclaIzquierda = keyboard.a(), position = game.center().down(1), marcador = new Marcador(position = game.center().up(5).left(2)))
@@ -163,7 +174,7 @@ object pantalla {
 		self.agregarVisuales()
 		self.programarTeclas()
 		self.collides()
-		pelotas.first().desplazamiento()
+		//pelotas.first().desplazamiento()
 		}
 		
 	
@@ -184,13 +195,16 @@ object pantalla {
 		game.addVisual(jugador2.marcador())
 		jugador1.partes().forEach({x=> game.addVisual(x)})
 		jugador2.partes().forEach({x=> game.addVisual(x)})
+		game.addVisual(enter)
 		}
+		
  
 	method programarTeclas() {
 		jugador1.teclaDerecha().onPressDo{jugador1.derecha()} 
 		jugador1.teclaIzquierda().onPressDo{jugador1.izquierda()} 
 		jugador2.teclaDerecha().onPressDo{jugador2.derecha()} 
 		jugador2.teclaIzquierda().onPressDo{jugador2.izquierda()}
+		keyboard.enter().onPressDo{enter.comenzar()}
 		
 	}
 	method gol(jugador)
@@ -223,11 +237,11 @@ object pantalla {
 		game.removeTickEvent("moverPelotita1")
 		if(jugador == jugador1)
 		{
-			ganador.image("winner-1.jpg")
+			ganador.image("winner-1.png")
 		}
 		if(jugador == jugador2)
 		{
-			ganador.image("winner-2.jpg")
+			ganador.image("winner-2.png")
 		}
 		game.addVisual(ganador)
 		game.schedule(4000,{game.stop()})
