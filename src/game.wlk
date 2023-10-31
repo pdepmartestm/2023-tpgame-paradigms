@@ -48,8 +48,11 @@ class Jugador
 	}
 	method ganar()
 	{
+		if(game.hasVisual(ganador).negate())
+		{
 		ganador.image("winner" + direccion.toString() + ".png")
 		pantalla.ganar()
+		}
 	}
 	method cambiarDireccionV(parametro){}
 	method iniciar()
@@ -190,7 +193,6 @@ object pantalla {
 	var property pelotas = [new Pelota(nombreOnTick = "moverPelotita1")]
 	const jugador1 = new Jugador(teclaDerecha = keyboard.d(),teclaIzquierda = keyboard.a(), position = game.center().down(1), marcador = new Marcador(position = game.center().up(4).left(2)),direccion =1)
 	const jugador2 = new Jugador( teclaDerecha = keyboard.right(),teclaIzquierda = keyboard.left(), position = game.center().up(9),marcador = new Marcador(position = game.center().up(2).left(2)),direccion = -1)
-	var alguienGano = false
 	
 	method iniciar(){
 		jugador1.iniciar()
@@ -222,9 +224,6 @@ object pantalla {
 		jugador1.revisarGol(pelota)
 		jugador2.revisarGol(pelota)
 	}
-	method goldorada(n){
-		
-	}
 	method siguienteNivel()
 	{
 		pelotas.add(new Pelota(nombreOnTick = "moverPelotita2"))
@@ -234,14 +233,10 @@ object pantalla {
 	method ganar()
 	{
 		
-		if(alguienGano.negate())
-		{
 		game.allVisuals().forEach{visual => game.removeVisual(visual)}
 		game.removeTickEvent("moverPelotita2")
 		game.removeTickEvent("moverPelotita1")
 		game.addVisual(ganador)
 		game.schedule(4000,{game.stop()})
 		}
-		alguienGano = true
-	}
 }
